@@ -4,7 +4,6 @@ import { ImageBackground, Pressable, StyleSheet, Text, View } from "react-native
 
 export default function Index() {
   return (
-
     <View style={styles.container}>
       <ImageBackground 
         source={require('../../assets/images/background-image.avif')}
