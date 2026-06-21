@@ -15,7 +15,7 @@ export default function Index() {
 
         <View style={styles.content}> 
           <View style={styles.hero}>
-            <Mountain></Mountain>
+            <View style={styles.mountain}><Mountain color={"white"} strokeWidth={3} ></Mountain></View>
             <Text style={styles.title}>SPRAYWALL</Text>
             <Text style={styles.subtitle}>SET · LOG · CLIMB</Text>
           </View>
@@ -47,6 +47,14 @@ const styles = StyleSheet.create({
     gap: 30,
   },
 
+  mountain:{
+    backgroundColor: "#ff6b35",
+    height: 48,
+    width: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+  },
   hero:{
     flex: 1,
     justifyContent: "center",
