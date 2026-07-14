@@ -1,9 +1,25 @@
 import { Link, Stack } from "expo-router";
 import { ArrowLeft, Mountain } from "lucide-react-native";
 import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { ResumableZoom } from "react-native-zoom-toolkit";
+import { ResumableZoom, ResumableZoomRefType } from "react-native-zoom-toolkit";
+import { useRef, useState } from "react";
 
 export default function CreateClimb() {
+    const [holds, setHolds] = useState([{x:0.5, y:0.5}, {x:1, y:1}]);
+    const zoomRef = useRef<ResumableZoomRefType>(null);
+
+    function handleTap(clickEvent: {x:number, y:number}){
+        const state = zoomRef.current?.getState();
+        if (!state) return;
+
+        const {containerSize, childSize, scale, translateX, translateY} = state;
+
+        const imageX = (clickEvent.x - containerSize.width / 2 - translateX) / scale + childSize.width / 2;
+        const imageY = (clickEvent.y - containerSize.height / 2 - translateY) / scale + childSize.height / 2;
+
+        console.log("image position", imageX, imageY);
+    }
+
     return(
         <View style={styles.screen}>
             <Stack.Screen options={{headerShown:false}} /> 
@@ -23,15 +39,15 @@ export default function CreateClimb() {
 
                 </View>
                     <View style={styles.rightSection}>
-                        <Text style={{ color: "white"}}>0 HOLDS SELECTED</Text> 
+                        <Text style={{ color: "white"}}>{holds.length} HOLDS SELECTED</Text> 
                     </View>
                 </View>
 
                 <View style={styles.zoomContainer}>
-                    <ResumableZoom>
+                    <ResumableZoom onTap={handleTap} ref={zoomRef}>
                         <View style={styles.wallLayer}>
                             <Image 
-                                source={require("../../assets/images/wall-image.jpg")}
+                                source={wallSource}
                                 style={styles.wallImage}
                                 resizeMode="contain"
                             />
@@ -42,13 +58,11 @@ export default function CreateClimb() {
             </View>
             
             <View style={styles.bottomSheet}>
-                <Link href="/review-climb" asChild>
-                    <Pressable style={[styles.button, styles.clearButton]}>
-                        <Text style={styles.buttonText}>CLEAR</Text>
-                    </Pressable>
-                </Link>
+                <Pressable onPress={() => setHolds([])} style={[styles.button, styles.clearButton]}>
+                    <Text style={styles.buttonText}>CLEAR</Text>
+                </Pressable>
 
-                <Link href="/create-climb" asChild>
+                <Link href="/review-climb" asChild>
                     <Pressable style={[styles.button, styles.nextButton]}>
                         <Text style={styles.buttonText}>NEXT</Text>
                     </Pressable>
@@ -58,22 +72,25 @@ export default function CreateClimb() {
     );
 }
 
+const wallSource = require("../../assets/images/wall-image.jpg");
+const { width: imgW, height: imgH } = Image.resolveAssetSource(wallSource);
 const { width } = Dimensions.get("window");
-const wallHeight = width * 2;
+const wallHeight = width * (imgH / imgW);
 
 const styles = StyleSheet.create({
     // ====== SCREEN =======
-
     screen:{
         flex:1,
         backgroundColor: "#0d0d0f",
     },
-    // ====== WALL =======
 
+    // ====== WALL =======
     wallArea:{
         height:"90%",
         position:"relative",
         overflow:"hidden",
+        justifyContent:"center",
+        alignItems:"center",
     },
     wallImage:{
         height:"100%",
@@ -83,9 +100,9 @@ const styles = StyleSheet.create({
         width:width,
         height:wallHeight,
     },
-
     zoomContainer:{
-        flex:1,
+        width:width,
+        height:wallHeight,
     },
 
     // ======= HEADER =======
@@ -105,7 +122,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 10,
     },
-    
     rightSection:{
         flex: 1,
         alignItems: "flex-end",
@@ -136,20 +152,17 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-
     buttonText: {
         color: "#FFFFFF",
         fontSize: 20,
         fontWeight: "700",
         letterSpacing: 1,
     },
-
     clearButton:{
         flex: 1,
     },
-
     nextButton: {
         flex: 2.2,
+        backgroundColor: "#ff6b35",
     },
 });
-
