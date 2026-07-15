@@ -27,9 +27,11 @@ export default function Index() {
               </Pressable>
             </Link>
             
-            <Pressable style={styles.secondaryButton}>
-              <Text style={styles.secondaryButtonText}>☰ VIEW CLIMBS</Text>
-            </Pressable>
+            <Link href="/climbs" asChild>
+              <Pressable style={styles.secondaryButton}>
+                <Text style={styles.secondaryButtonText}>☰ VIEW CLIMBS</Text>
+              </Pressable>
+            </Link>
         </View>
       </View>
       </ImageBackground>
