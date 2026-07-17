@@ -17,10 +17,22 @@ export default function CreateClimb() {
         const imageX = (clickEvent.x - containerSize.width / 2 - translateX) / scale + childSize.width / 2;
         const imageY = (clickEvent.y - containerSize.height / 2 - translateY) / scale + childSize.height / 2;
 
+        if (imageX < 0 || imageY < 0 || imageX > childSize.width || imageY > childSize.height) {
+            console.log("tap outside image");
+            return;
+        }
+        const normalizedX = imageX / childSize.width;   
+        const normalizedY = imageY / childSize.height;
+
+        setHolds([...holds, {x:normalizedX, y:normalizedY}]);
+
+
         console.log("image position", imageX, imageY);
+        
     }
 
     return(
+
         <View style={styles.screen}>
             <Stack.Screen options={{headerShown:false}} /> 
             <View style={styles.wallArea}>
@@ -51,6 +63,23 @@ export default function CreateClimb() {
                                 style={styles.wallImage}
                                 resizeMode="contain"
                             />
+                            {holds.map((hold, index) => (
+                                <View
+                                    key={index}
+                                    pointerEvents="none"
+                                    style={{
+                                        position: "absolute",
+                                        left: hold.x * width - MARKER_SIZE / 2,
+                                        top: hold.y * wallHeight - MARKER_SIZE / 2,
+                                        width: MARKER_SIZE,
+                                        height: MARKER_SIZE,
+                                        borderRadius: MARKER_SIZE / 2,
+                                        borderWidth: 3,
+                                        borderColor: "#ff6b35",
+                                        backgroundColor: "rgba(255, 107, 53, 0.15)",
+                                    }}
+                                />
+                            ))}
                         </View>
                     </ResumableZoom>
                 </View>
@@ -72,6 +101,7 @@ export default function CreateClimb() {
     );
 }
 
+const MARKER_SIZE = 22;
 const wallSource = require("../../assets/images/wall-image.jpg");
 const { width: imgW, height: imgH } = Image.resolveAssetSource(wallSource);
 const { width } = Dimensions.get("window");
