@@ -91,7 +91,7 @@ export default function CreateClimb() {
                     <Text style={styles.buttonText}>CLEAR</Text>
                 </Pressable>
 
-                <Link href="/review-climb" asChild>
+                <Link href= {{pathname: "/review-climb", params: { holds: JSON.stringify(holds) } }} asChild>
                     <Pressable style={[styles.button, styles.nextButton]}>
                         <Text style={styles.buttonText}>NEXT</Text>
                     </Pressable>
