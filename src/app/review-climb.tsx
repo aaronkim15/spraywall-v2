@@ -9,8 +9,9 @@ import {
     TextInput,
     View,
 } from "react-native";
+import { API_BASE_URL } from "../constants/apis";
 
-const GRADES = ["V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8"];
+const GRADES = ["V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7", "V8", "V9", "V10", "V11", "V12", "V13", "V14"];
 
 export default function ReviewClimb() {
     const router = useRouter();
@@ -24,11 +25,50 @@ export default function ReviewClimb() {
     const [grade, setGrade] = useState("");
     const [description, setDescription] = useState("");
 
-    function handleSave() {
-        const climb = { name, grade, description, holds };
-        console.log("saving climb:", climb);
-        // TODO (later): POST this to the backend, then navigate away.
+    // TEMP: no wall selection or auth yet, so these are hardcoded.
+    const WALL_ID = "a99a7ad1-834a-4770-99d3-2904f08dcca8";
+    const CREATOR_ID = "5b0de9c0-1f44-4c43-bd56-3c0e5709b689";
+
+    const [saving, setSave] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    async function handleSave() {
+    // TODO 1: set a "saving" state to true so the button can show progress
+    //         and prevent double-taps
+    setSave(true);
+    try {
+        // TODO 2: fetch(`${API_BASE_URL}/climbs`, { ... })
+        //   method: "POST"
+        //   headers: { "Content-Type": "application/json" }
+        //   body: JSON.stringify({ name, grade, description, holds, wallId, creatorId })
+
+        const res = await fetch(`${API_BASE_URL}/climbs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            name,
+            grade,
+            description, 
+            holds, 
+            wallId:WALL_ID,
+            creatorId: CREATOR_ID})
+        });
+        // TODO 3: check res.ok, throw if not
+        if(!res.ok){
+            throw new Error(`Server responded ${res.status}`);
+        }
+        router.replace("/climbs");
+        // TODO 4: on success, navigate away (router.replace("/climbs") or similar)
+    } catch (err) {
+        // TODO 5: show the error to the user somehow
+        setError(err instanceof Error ? err.message : "Save Handling Failed");
+        console.log(err);
+        
+    } finally {
+        // TODO 6: set "saving" back to false
+        setSave(false);
     }
+}   
 
     return (
         <View style={styles.screen}>
@@ -94,13 +134,16 @@ export default function ReviewClimb() {
             </ScrollView>
 
             <View style={styles.bottomSheet}>
+                {error && <Text style={styles.errorText}>{error}</Text>}
                 <Pressable
                     style={[styles.saveButton, !name && styles.saveButtonDisabled]}
                     onPress={handleSave}
-                    disabled={!name}
+                    disabled={!name || saving}
                 >
-                    <Text style={styles.saveButtonText}>SAVE CLIMB</Text>
+                    <Text style={styles.saveButtonText}>{saving ? "SAVING..." : "SAVE CLIMB"}</Text>
+                    
                 </Pressable>
+                
             </View>
         </View>
     );
@@ -201,5 +244,11 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "700",
         letterSpacing: 1,
+    },
+        errorText: {
+        color: "#ff6b35",
+        fontSize: 14,
+        marginBottom: 12,
+        textAlign: "center",
     },
 });
