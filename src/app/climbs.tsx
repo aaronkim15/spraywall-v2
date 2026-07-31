@@ -1,5 +1,5 @@
-import { Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { Stack, useFocusEffect } from "expo-router";
+import { useEffect, useState, useCallback } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,40 +10,42 @@ import {
 import { API_BASE_URL } from "../constants/apis";
 import { theme } from "../constants/themes";
 
-type Wall = {
-  id: string;
-  name: string;
-  location: string | null;
-  image_url: string | null;
+type Climb = {
+   id: string,
+   name: string,
+   grade: string,
+   description: string | null;
 };
 
 export default function Climbs() {
-  const [walls, setWalls] = useState<Wall[]>([]);
+  const [climbs, setClimbs] = useState<Climb[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadWalls() {
-      try {
-        const res = await fetch(`${API_BASE_URL}/walls`);
-        if (!res.ok) {
-          throw new Error(`Server responded ${res.status}`);
+  useFocusEffect(
+    useCallback(() => {
+        async function loadClimbs() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/climbs`);
+                if (!res.ok) {
+                    throw new Error(`Server responded ${res.status}`);
+                }
+                const data: Climb[] = await res.json();
+                setClimbs(data);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Something went wrong");
+            } finally {
+                setLoading(false);
+            }
         }
-        const data: Wall[] = await res.json();
-        setWalls(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong");
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadWalls();
-  }, []);
+        loadClimbs();
+    }, [])
+);
 
   return (
     <View style={styles.screen}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Text style={styles.title}>WALLS</Text>
+      <Text style={styles.title}>CLIMBS</Text>
 
       {loading && (
         <View style={styles.center}>
@@ -57,22 +59,22 @@ export default function Climbs() {
 
       {error && !loading && (
         <View style={styles.center}>
-          <Text style={styles.error}>Couldn&apos;t load walls</Text>
+          <Text style={styles.error}>Couldn&apos;t load climbs</Text>
           <Text style={styles.mutedSmall}>{error}</Text>
         </View>
       )}
 
       {!loading && !error && (
         <FlatList
-          data={walls}
+          data={climbs}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          ListEmptyComponent={<Text style={styles.muted}>No walls yet.</Text>}
+          ListEmptyComponent={<Text style={styles.muted}>No climbs yet.</Text>}
           renderItem={({ item }) => (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>{item.name}</Text>
-              {item.location ? (
-                <Text style={styles.cardSubtitle}>{item.location}</Text>
+              {item.grade ? (
+                <Text style={styles.cardSubtitle}>{item.grade}</Text>
               ) : null}
             </View>
           )}
