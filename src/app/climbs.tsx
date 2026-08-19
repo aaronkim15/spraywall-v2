@@ -1,8 +1,9 @@
-import { Stack, useFocusEffect } from "expo-router";
+import { Stack, useFocusEffect, Link } from "expo-router";
 import { useEffect, useState, useCallback } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -61,7 +62,7 @@ export default function Climbs() {
         <View style={styles.center}>
           <Text style={styles.error}>Couldn&apos;t load climbs</Text>
           <Text style={styles.mutedSmall}>{error}</Text>
-        </View>
+        </View> 
       )}
 
       {!loading && !error && (
@@ -71,12 +72,15 @@ export default function Climbs() {
           contentContainerStyle={styles.list}
           ListEmptyComponent={<Text style={styles.muted}>No climbs yet.</Text>}
           renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>{item.name}</Text>
-              {item.grade ? (
-                <Text style={styles.cardSubtitle}>{item.grade}</Text>
-              ) : null}
-            </View>
+            <Link href={`/climb/${item.id}`} asChild>
+              <Pressable style={styles.card}>
+                <Text style={styles.cardTitle}>{item.name}</Text>
+                {item.grade ? (
+                  <Text style={styles.cardSubtitle}>{item.grade}</Text>
+                ) : null}
+              </Pressable>
+            </Link>
+            
           )}
         />
       )}
