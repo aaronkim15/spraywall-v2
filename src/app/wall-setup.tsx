@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ResumableZoom } from "react-native-zoom-toolkit";
 import Svg, { Polygon } from "react-native-svg";
-import { API_BASE_URL } from "../../constants/apis";
+import { API_BASE_URL } from "../constants/apis";
 
 const WALL_ID = "a99a7ad1-834a-4770-99d3-2904f08dcca8"; // temporary hardcode
 
