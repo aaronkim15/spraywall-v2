@@ -21,6 +21,12 @@ export default function Index() {
           </View>
 
           <View style={styles.buttons}>
+            <Link href="/wall-setup" asChild>
+                <Pressable style={styles.setupButton}>
+                    <Text style={styles.setupButtonText}>Set up wall</Text>
+                </Pressable>
+            </Link>
+
             <Link href="/create-climb" asChild>
               <Pressable style={styles.primaryButton}>
                 <Text style={styles.primaryButtonText}>+ CREATE CLIMB</Text>
@@ -99,6 +105,18 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: "center",
+  },
+  setupButton: {
+    backgroundColor: "#2C2C30",
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  setupButtonText: {
+      color: "white",
+      fontSize: 16,
+      fontWeight: "600",
   },
 
   primaryButtonText:{

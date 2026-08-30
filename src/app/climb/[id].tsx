@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
 import { ResumableZoom } from "react-native-zoom-toolkit";
 import { API_BASE_URL } from "../../constants/apis";
+import Svg, { Polygon } from "react-native-svg";
 
-type Hold = { x_pos: number; y_pos: number };
+type Point = { x:number; y:number};
+type Hold = { x_pos: number; y_pos: number; points: Point[] | null};
 type Climb = {
     id: string;
     name: string;
@@ -50,29 +52,37 @@ export default function ClimbDetail() {
     }
     return(
         <View style={styles.screen}>
-                    <Stack.Screen options={{ headerShown: false }} />
-                    <ResumableZoom>
-                        <View style={styles.wallLayer}>
-                            <Image source={wallSource} style={styles.wallImage} resizeMode="contain" />
-                            {climb.holds.map((hold, index) => (
-                                <View
+            <Stack.Screen options={{ headerShown: false }} />
+            <ResumableZoom>
+                <View style={styles.wallLayer}>
+                    <Image source={wallSource} style={styles.wallImage} resizeMode="contain" />
+                    <Svg
+                        width={width}
+                        height={wallHeight}
+                        style={{ position: "absolute", top: 0, left: 0 }}
+                        pointerEvents="none"
+                    >
+                        {climb.holds.map((hold, index) => {
+                            if (!hold.points) return null;
+
+                            const pointsString = hold.points
+                                .map((p) => `${p.x * width},${p.y * wallHeight}`)
+                                .join(" ");
+
+                            return (
+                                <Polygon
                                     key={index}
-                                    style={{
-                                        position: "absolute",
-                                        left: hold.x_pos * width - MARKER_SIZE / 2,
-                                        top: hold.y_pos * wallHeight - MARKER_SIZE / 2,
-                                        width: MARKER_SIZE,
-                                        height: MARKER_SIZE,
-                                        borderRadius: MARKER_SIZE / 2,
-                                        borderWidth: 3,
-                                        borderColor: "#ff6b35",
-                                        backgroundColor: "rgba(255, 107, 53, 0.15)",
-                                    }}
+                                    points={pointsString}
+                                    fill="rgba(255, 107, 53, 0.3)"
+                                    stroke="#ff6b35"
+                                    strokeWidth={2}
                                 />
-                            ))}
-                        </View>
-                    </ResumableZoom>
+                            );
+                        })}
+                    </Svg>
                 </View>
+            </ResumableZoom>
+        </View>
     );
 
     
@@ -89,7 +99,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#0d0d0f",
         justifyContent: "center",
-    },
+    },  
     wallLayer: {
         width: width,
         height: wallHeight,

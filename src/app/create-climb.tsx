@@ -3,9 +3,17 @@ import { ArrowLeft, Mountain } from "lucide-react-native";
 import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { ResumableZoom, ResumableZoomRefType } from "react-native-zoom-toolkit";
 import { useRef, useState } from "react";
+import Svg, { Polygon } from "react-native-svg";
 
 export default function CreateClimb() {
     const [holds, setHolds] = useState([{x:0.5, y:0.5}, {x:1, y:1}]);
+    const TEST_POINTS = [
+    { x: 0.45, y: 0.45 },
+    { x: 0.55, y: 0.45 },
+    { x: 0.57, y: 0.58 },
+    { x: 0.43, y: 0.58 },
+    ];
+
     const zoomRef = useRef<ResumableZoomRefType>(null);
 
     function handleTap(clickEvent: {x:number, y:number}){
@@ -32,7 +40,6 @@ export default function CreateClimb() {
     }
 
     return(
-
         <View style={styles.screen}>
             <Stack.Screen options={{headerShown:false}} /> 
             <View style={styles.wallArea}>
@@ -80,6 +87,19 @@ export default function CreateClimb() {
                                     }}
                                 />
                             ))}
+                            <Svg
+                            width={width}
+                            height={wallHeight}
+                            style={{ position: "absolute", top: 0, left: 0 }}
+                            pointerEvents="none"
+                            >
+                            <Polygon
+                                points={TEST_POINTS.map((p) => `${p.x * width},${p.y * wallHeight}`).join(" ")}
+                                fill="rgba(255, 107, 53, 0.3)"
+                                stroke="#ff6b35"
+                                strokeWidth={2}
+                            />
+                            </Svg>
                         </View>
                     </ResumableZoom>
                 </View>
