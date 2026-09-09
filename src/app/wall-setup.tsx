@@ -39,7 +39,12 @@ export default function WallSetup() {
 
         const imageX = (clickEvent.x - containerSize.width / 2 - translateX) / scale + childSize.width / 2;
         const imageY = (clickEvent.y - containerSize.height / 2 - translateY) / scale + childSize.height / 2;
-
+        
+        console.log("tap:", clickEvent.x, clickEvent.y);
+        console.log("container:", containerSize.width, containerSize.height);
+        console.log("child:", childSize.width, childSize.height);
+        console.log("scale/translate:", scale, translateX, translateY);
+        
         if (imageX < 0 || imageY < 0 || imageX > childSize.width || imageY > childSize.height) {
             return; // tapped outside the image
         }
