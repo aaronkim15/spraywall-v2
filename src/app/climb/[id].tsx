@@ -73,7 +73,7 @@ export default function ClimbDetail() {
                                 <Polygon
                                     key={index}
                                     points={pointsString}
-                                    fill="rgba(255, 107, 53, 0.3)"
+                                    fill="none"
                                     stroke="#ff6b35"
                                     strokeWidth={2}
                                 />
