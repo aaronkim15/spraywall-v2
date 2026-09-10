@@ -16,7 +16,6 @@ export default function WallSetup() {
     const [detecting, setDetecting] = useState(false);
     const zoomRef = useRef<ResumableZoomRefType>(null);
 
-    // Load the wall's existing holds (the catalog) on mount.
     async function loadHolds() {
         try {
             const res = await fetch(`${API_BASE_URL}/walls/${WALL_ID}/holds`);
@@ -31,22 +30,18 @@ export default function WallSetup() {
     useEffect(() => {
         loadHolds();
     }, []);
+
     function handleTap(clickEvent: { x: number; y: number }) {
         const state = zoomRef.current?.getState();
         if (!state) return;
 
         const { containerSize, childSize, scale, translateX, translateY } = state;
 
-        const imageX = (clickEvent.x - containerSize.width / 2 - translateX) / scale + childSize.width / 2;
-        const imageY = (clickEvent.y - containerSize.height / 2 - translateY) / scale + childSize.height / 2;
-        
-        console.log("tap:", clickEvent.x, clickEvent.y);
-        console.log("container:", containerSize.width, containerSize.height);
-        console.log("child:", childSize.width, childSize.height);
-        console.log("scale/translate:", scale, translateX, translateY);
-        
+        const imageX = (clickEvent.x - containerSize.width / 2) / scale - translateX / scale + childSize.width / 2;
+        const imageY = (clickEvent.y - containerSize.height / 2) / scale - translateY / scale + childSize.height / 2;
+
         if (imageX < 0 || imageY < 0 || imageX > childSize.width || imageY > childSize.height) {
-            return; // tapped outside the image
+            return;
         }
 
         const point = {
@@ -61,20 +56,19 @@ export default function WallSetup() {
             addHold(point);
         }
     }
-
     async function removeHold(holdId: string) {
         try {
             const res = await fetch(`${API_BASE_URL}/holds/${holdId}`, { method: "DELETE" });
+            console.log("delete status:", res.status);
             if (!res.ok) throw new Error(`Delete failed ${res.status}`);
-            await loadHolds();
+            setHolds((prev) => prev.filter((h) => h.id !== holdId));
         } catch (err) {
             console.log("Remove failed:", err);
         }
     }
 
-    async function addHold(point: { x: number; y: number }) {
-        // A small default-shape diamond centered on the tap (normalized).
-        const s = 0.015; // half-size of the placeholder
+   async function addHold(point: { x: number; y: number }) {
+        const s = 0.015;
         const points = [
             { x: point.x - s, y: point.y },
             { x: point.x, y: point.y - s },
@@ -88,13 +82,13 @@ export default function WallSetup() {
                 body: JSON.stringify({ x_pos: point.x, y_pos: point.y, points }),
             });
             if (!res.ok) throw new Error(`Add failed ${res.status}`);
-            await loadHolds();
+            const data = await res.json();
+            setHolds((prev) => [...prev, data.hold]); // append the new hold immediately
         } catch (err) {
             console.log("Add failed:", err);
         }
     }
 
-    // Trigger detection, then reload the catalog so new holds appear.
     async function runDetection() {
         setDetecting(true);
         try {
@@ -112,35 +106,37 @@ export default function WallSetup() {
 
     return (
         <View style={styles.screen}>
-            <Stack.Screen options={{ title: "Set up wall" }} />
+            <Stack.Screen options={{ title: "Set up wall", headerShown: false }} />
 
-            <ResumableZoom onTap={handleTap} ref={zoomRef}>
-                <View style={styles.wallLayer}>
-                    <Image source={wallSource} style={styles.wallImage} resizeMode="contain" />
-                    <Svg
-                        width={width}
-                        height={wallHeight}
-                        style={{ position: "absolute", top: 0, left: 0 }}
-                        pointerEvents="none"
-                    >
-                        {holds.map((hold) => {
-                            if (!hold.points) return null;
-                            const pointsString = hold.points
-                                .map((p) => `${p.x * width},${p.y * wallHeight}`)
-                                .join(" ");
-                            return (
-                                <Polygon
-                                    key={hold.id}
-                                    points={pointsString}
-                                    fill="none"
-                                    stroke="#ff6b35"
-                                    strokeWidth={2}
-                                />
-                            );
-                        })}
-                    </Svg>
-                </View>
-            </ResumableZoom>
+            <View style={styles.zoomContainer}>
+                <ResumableZoom onTap={handleTap} ref={zoomRef}>
+                    <View style={styles.wallLayer}>
+                        <Image source={wallSource} style={styles.wallImage} resizeMode="contain" />
+                        <Svg
+                            width={width}
+                            height={wallHeight}
+                            style={{ position: "absolute", top: 0, left: 0 }}
+                            pointerEvents="none"
+                        >
+                            {holds.map((hold) => {
+                                if (!hold.points) return null;
+                                const pointsString = hold.points
+                                    .map((p) => `${p.x * width},${p.y * wallHeight}`)
+                                    .join(" ");
+                                return (
+                                    <Polygon
+                                        key={hold.id}
+                                        points={pointsString}
+                                        fill="none"
+                                        stroke="#ff6b35"
+                                        strokeWidth={2}
+                                    />
+                                );
+                            })}
+                        </Svg>
+                    </View>
+                </ResumableZoom>
+            </View>
 
             <TouchableOpacity style={styles.button} onPress={runDetection} disabled={detecting}>
                 <Text style={styles.buttonText}>
@@ -158,6 +154,7 @@ const wallHeight = width * (imgH / imgW);
 
 const styles = StyleSheet.create({
     screen: { flex: 1, backgroundColor: "#0d0d0f", justifyContent: "center" },
+    zoomContainer: { width: width, height: wallHeight, alignSelf: "center" },
     wallLayer: { width: width, height: wallHeight },
     wallImage: { height: "100%", width: "100%" },
     button: {
