@@ -1,0 +1,44 @@
+diff --git a/node_modules/react-native-zoom-toolkit/lib/module/components/resumable/ResumableZoom.js b/node_modules/react-native-zoom-toolkit/lib/module/components/resumable/ResumableZoom.js
+index 6388afc..71ef6ff 100644
+--- a/node_modules/react-native-zoom-toolkit/lib/module/components/resumable/ResumableZoom.js
++++ b/node_modules/react-native-zoom-toolkit/lib/module/components/resumable/ResumableZoom.js
+@@ -168,7 +168,7 @@ const ResumableZoom = props => {
+   });
+   const pinch = Gesture.Pinch().withTestId('pinch').enabled(pinchEnabled).manualActivation(true).onTouchesDown(onTouchesDown).onTouchesMove(onTouchesMove).onTouchesUp(onTouchesUp).onStart(onPinchStart).onUpdate(onPinchUpdate).onEnd(onPinchEnd);
+   const pan = Gesture.Pan().withTestId('pan').enabled(panEnabled && gesturesEnabled && enablePanGestureByDoubleTap).maxPointers(1).onStart(onPanStart).onChange(onPanChange).onEnd(onPanEnd);
+-  const tap = Gesture.Tap().withTestId('tap').enabled(tapsEnabled && gesturesEnabled).maxDuration(250).numberOfTaps(1).runOnJS(true).onEnd(e => onTap?.(e));
++  const tap = Gesture.Tap().withTestId('tap').enabled(tapsEnabled && gesturesEnabled).maxDuration(600).numberOfTaps(1).runOnJS(true).onEnd(e => onTap?.(e));
+   const doubleTap = Gesture.Tap().withTestId('doubleTap').enabled(tapsEnabled && gesturesEnabled).maxDuration(250).numberOfTaps(2).onStart(onDoubleTapStart).onEnd(onDoubleTapEnd);
+   const longPress = Gesture.LongPress().withTestId('longPress').enabled(gesturesEnabled).minDuration(longPressDuration).runOnJS(true).onStart(e => onLongPress?.(e));
+   const measureRoot = e => {
+@@ -273,7 +273,7 @@ const ResumableZoom = props => {
+     zoom: zoom,
+     getVisibleRect: getVisibleRect
+   }));
+-  const composedTap = Gesture.Exclusive(doubleTap, tap, longPress);
++  const composedTap = Gesture.Exclusive(tap, longPress);
+   const composedGesture = Gesture.Race(pinch, pan, composedTap);
+   return /*#__PURE__*/_jsx(View, {
+     style: [style ?? styles.flex, styles.center],
+diff --git a/node_modules/react-native-zoom-toolkit/src/components/resumable/ResumableZoom.tsx b/node_modules/react-native-zoom-toolkit/src/components/resumable/ResumableZoom.tsx
+index 49585c6..eb60b24 100644
+--- a/node_modules/react-native-zoom-toolkit/src/components/resumable/ResumableZoom.tsx
++++ b/node_modules/react-native-zoom-toolkit/src/components/resumable/ResumableZoom.tsx
+@@ -207,7 +207,7 @@ const ResumableZoom: React.FC<ResumableZoomPropsWithRef> = (props) => {
+   const tap = Gesture.Tap()
+     .withTestId('tap')
+     .enabled(tapsEnabled && gesturesEnabled)
+-    .maxDuration(250)
++    .maxDuration(600)
+     .numberOfTaps(1)
+     .runOnJS(true)
+     .onEnd((e) => onTap?.(e));
+@@ -333,7 +333,7 @@ const ResumableZoom: React.FC<ResumableZoomPropsWithRef> = (props) => {
+     getVisibleRect: getVisibleRect,
+   }));
+ 
+-  const composedTap = Gesture.Exclusive(doubleTap, tap, longPress);
++  const composedTap = Gesture.Exclusive(tap, longPress);
+   const composedGesture = Gesture.Race(pinch, pan, composedTap);
+ 
+   return (

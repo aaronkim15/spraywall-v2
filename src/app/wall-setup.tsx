@@ -35,27 +35,22 @@ export default function WallSetup() {
         const state = zoomRef.current?.getState();
         if (!state) return;
 
-        const { containerSize, childSize, scale, translateX, translateY } = state;
+        const { childSize } = state;
 
-        const imageX = (clickEvent.x - containerSize.width / 2) / scale - translateX / scale + childSize.width / 2;
-        const imageY = (clickEvent.y - containerSize.height / 2) / scale - translateY / scale + childSize.height / 2;
+        // Tap coords come back in the child's own pixel space (zoom already
+        // accounted for by the library), so normalize by child size directly.
+        const imageX = clickEvent.x;
+        const imageY = clickEvent.y;
 
         if (imageX < 0 || imageY < 0 || imageX > childSize.width || imageY > childSize.height) {
             return;
         }
 
-        const point = {
-            x: imageX / childSize.width,
-            y: imageY / childSize.height,
-        };
-
+        const point = { x: imageX / childSize.width, y: imageY / childSize.height };
         const hit = findHoldAtPoint(point, holds);
-        if (hit) {
-            removeHold(hit.id);
-        } else {
-            addHold(point);
-        }
+        if (hit) removeHold(hit.id); else addHold(point);
     }
+    
     async function removeHold(holdId: string) {
         try {
             const res = await fetch(`${API_BASE_URL}/holds/${holdId}`, { method: "DELETE" });
@@ -123,12 +118,13 @@ export default function WallSetup() {
                                 const pointsString = hold.points
                                     .map((p) => `${p.x * width},${p.y * wallHeight}`)
                                     .join(" ");
+                                const isManual = hold.source === "manual";
                                 return (
                                     <Polygon
                                         key={hold.id}
                                         points={pointsString}
-                                        fill="none"
-                                        stroke="#ff6b35"
+                                        fill={isManual ? "rgba(45, 212, 191, 0.45)" : "none"}
+                                        stroke={isManual ? "#2dd4bf" : "#ff6b35"}
                                         strokeWidth={2}
                                     />
                                 );
